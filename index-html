@@ -1,1 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fishing Game - Cast & Reel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>FISHING GAME</h1>
+        
+        <div class="score-board">
+            <p>Score: <span id="score">0</span></p>
+            <p>Fish Caught: <span id="fishCount">0</span></p>
+        </div>
 
+        <div class="game-area">
+            <canvas id="gameCanvas" width="800" height="400"></canvas>
+            
+            <div class="controls">
+                <button id="castBtn">CAST LINE</button>
+                <button id="reelBtn" disabled>REEL IN</button>
+            </div>
+            
+            <div class="reel-bar-container">
+                <div id="reelBar"></div>
+            </div>
+            
+            <div class="message-area">
+                <p id="message">Click CAST to start fishing!</p>
+            </div>
+        </div>
+        
+        <div class="fish-log">
+            <h3>Catch Log</h3>
+            <ul id="catchLog"></ul>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
