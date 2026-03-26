@@ -36,37 +36,9 @@ h1 {
     color: white;
     padding: 10px;
     border-radius: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     font-size: 1.2rem;
     font-weight: bold;
-}
-
-.oxygen-container {
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-.oxygen-container p {
-    font-weight: bold;
-    color: #1e6f5c;
-    margin-bottom: 5px;
-}
-
-.oxygen-bar-container {
-    width: 250px;
-    height: 20px;
-    background: #ccc;
-    border-radius: 10px;
-    margin: 0 auto;
-    overflow: hidden;
-    border: 1px solid #555;
-}
-
-#oxygenBar {
-    width: 100%;
-    height: 100%;
-    background: #3498db;
-    transition: width 0.1s linear;
 }
 
 .game-area {
@@ -84,14 +56,13 @@ canvas {
 .controls {
     margin: 15px 0;
     display: flex;
-    gap: 15px;
+    gap: 20px;
     justify-content: center;
-    flex-wrap: wrap;
 }
 
 button {
-    padding: 10px 20px;
-    font-size: 1rem;
+    padding: 12px 30px;
+    font-size: 1.1rem;
     font-weight: bold;
     border: none;
     border-radius: 50px;
@@ -121,16 +92,6 @@ button:hover:not(:disabled) {
 
 #reelBtn:hover:not(:disabled) {
     background: #d35400;
-}
-
-#surfaceBtn {
-    background: #48c9b0;
-    color: white;
-    box-shadow: 0 4px 0 #1e6f5c;
-}
-
-#surfaceBtn:hover:not(:disabled) {
-    background: #1e6f5c;
 }
 
 button:disabled {
