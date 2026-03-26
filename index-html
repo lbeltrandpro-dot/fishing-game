@@ -3,38 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fishing Game - Cast & Reel</title>
+    <title>Fishing Game - Deluxe Edition</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <h1>FISHING GAME</h1>
         
-        <div class="score-board">
-            <p>Score: <span id="score">0</span></p>
-            <p>Fish Caught: <span id="fishCount">0</span></p>
+        <div class="stats-bar">
+            <div class="score-board">
+                <p>Score: <span id="score">0</span></p>
+                <p>Fish Caught: <span id="fishCount">0</span></p>
+            </div>
+            <div class="rod-info">
+                <p>Rod: <span id="rodName">Basic Rod</span></p>
+                <p>Catch Bonus: <span id="catchBonus">0</span>%</p>
+            </div>
         </div>
 
-        <div class="game-area">
-            <canvas id="gameCanvas" width="800" height="400"></canvas>
-            
-            <div class="controls">
-                <button id="castBtn">CAST LINE</button>
-                <button id="reelBtn" disabled>REEL IN</button>
+        <div class="tabs">
+            <button id="fishingTabBtn" class="tab-btn active">FISHING</button>
+            <button id="shopTabBtn" class="tab-btn">SHOP</button>
+            <button id="bestiaryTabBtn" class="tab-btn">BESTIARY</button>
+        </div>
+
+        <!-- Fishing Tab -->
+        <div id="fishingTab" class="tab-content active">
+            <div class="location-selector">
+                <label>Location:</label>
+                <select id="locationSelect">
+                    <option value="pond">Pond</option>
+                    <option value="river">River</option>
+                    <option value="lake">Lake</option>
+                </select>
+            </div>
+
+            <div class="game-area">
+                <canvas id="gameCanvas" width="800" height="400"></canvas>
+                
+                <div class="controls">
+                    <button id="castBtn">CAST LINE</button>
+                    <button id="reelBtn" disabled>REEL IN</button>
+                </div>
+                
+                <div class="reel-bar-container">
+                    <div id="reelBar"></div>
+                </div>
+                
+                <div class="message-area">
+                    <p id="message">Click CAST to start fishing!</p>
+                </div>
             </div>
             
-            <div class="reel-bar-container">
-                <div id="reelBar"></div>
-            </div>
-            
-            <div class="message-area">
-                <p id="message">Click CAST to start fishing!</p>
+            <div class="fish-log">
+                <h3>Catch Log</h3>
+                <ul id="catchLog"></ul>
             </div>
         </div>
-        
-        <div class="fish-log">
-            <h3>Catch Log</h3>
-            <ul id="catchLog"></ul>
+
+        <!-- Shop Tab -->
+        <div id="shopTab" class="tab-content">
+            <h2>FISHING ROD SHOP</h2>
+            <p class="shop-points">Your Points: <span id="shopPoints">0</span></p>
+            <div class="shop-items">
+                <div class="shop-item" data-rod="basic">
+                    <h3>Basic Rod</h3>
+                    <p>Bonus: 0%</p>
+                    <p>Price: Free</p>
+                    <button class="buy-btn" data-rod="basic" disabled>EQUIPPED</button>
+                </div>
+                <div class="shop-item" data-rod="steel">
+                    <h3>Steel Rod</h3>
+                    <p>Bonus: +10% Catch Rate</p>
+                    <p>Price: 500 points</p>
+                    <button class="buy-btn" data-rod="steel">BUY</button>
+                </div>
+                <div class="shop-item" data-rod="carbon">
+                    <h3>Carbon Rod</h3>
+                    <p>Bonus: +20% Catch Rate</p>
+                    <p>Price: 1500 points</p>
+                    <button class="buy-btn" data-rod="carbon">BUY</button>
+                </div>
+                <div class="shop-item" data-rod="master">
+                    <h3>Master Rod</h3>
+                    <p>Bonus: +30% Catch Rate</p>
+                    <p>Price: 5000 points</p>
+                    <button class="buy-btn" data-rod="master">BUY</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bestiary Tab -->
+        <div id="bestiaryTab" class="tab-content">
+            <h2>FISH BESTIARY</h2>
+            <p class="bestiary-stats">Caught: <span id="bestiaryCaught">0</span> / <span id="bestiaryTotal">0</span> fish</p>
+            <div id="bestiaryGrid" class="bestiary-grid"></div>
         </div>
     </div>
     
