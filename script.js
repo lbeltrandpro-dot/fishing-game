@@ -7,7 +7,10 @@ let reelProgress = 0;
 let currentFish = null;
 let reelInterval = null;
 let biteTimeout = null;
-
+// Oxygen System
+let oxygen = 100;
+let isDrowned = false;
+let oxygenInterval = null;
 // Fish species
 const fishSpecies = [
     { name: "Minnow", weight: 1, value: 10, difficulty: 0.6, color: "#a5d6a5" },
@@ -240,3 +243,78 @@ reelBtn.addEventListener('click', () => {
 
 // Start animation
 animateBobber();
+// Start oxygen drain
+function startOxygenDrain() {
+    if (oxygenInterval) clearInterval(oxygenInterval);
+    
+    oxygenInterval = setInterval(() => {
+        if (isFishing && !isDrowned) {
+            oxygen -= 2; // Drain 2% per second
+            if (oxygen < 0) oxygen = 0;
+            
+            // Update oxygen bar
+            document.getElementById('oxygen').textContent = oxygen;
+            document.getElementById('oxygenBar').style.width = oxygen + "%";
+            
+            // Change color based on oxygen level
+            const oxygenBarElement = document.getElementById('oxygenBar');
+            if (oxygen < 30) {
+                oxygenBarElement.style.background = "#e74c3c"; // Red - critical
+            } else if (oxygen < 60) {
+                oxygenBarElement.style.background = "#f39c12"; // Orange - warning
+            } else {
+                oxygenBarElement.style.background = "#3498db"; // Blue - good
+            }
+            
+            // DROWN!
+            if (oxygen <= 0 && !isDrowned) {
+                drown();
+            }
+        }
+    }, 1000);
+}
+
+// Drown function
+function drown() {
+    isDrowned = true;
+    isFishing = false;
+    isReeling = false;
+    
+    if (reelInterval) clearInterval(reelInterval);
+    if (biteTimeout) clearTimeout(biteTimeout);
+    if (oxygenInterval) clearInterval(oxygenInterval);
+    
+    messageP.textContent = " YOU DROWNED! Game Over! Refresh to play again.";
+    messageP.style.color = "#c0392b";
+    messageP.style.fontSize = "1.2rem";
+    
+    castBtn.disabled = true;
+    reelBtn.disabled = true;
+    
+    const logItem = document.createElement('li');
+    const time = new Date().toLocaleTimeString();
+    logItem.textContent = `${time} - GAME OVER! You drowned!`;
+    logItem.style.color = "#c0392b";
+    logItem.style.fontWeight = "bold";
+    catchLog.prepend(logItem);
+}
+
+// Surface for air (add this to resetFishing or create a surface button)
+function surface() {
+    if (!isDrowned && !isReeling && !currentFish) {
+        oxygen = 100;
+        document.getElementById('oxygen').textContent = oxygen;
+        document.getElementById('oxygenBar').style.width = "100%";
+        document.getElementById('oxygenBar').style.background = "#3498db";
+        messageP.textContent = "You surfaced and caught your breath!";
+        messageP.style.color = "#2e86c1";
+        
+        setTimeout(() => {
+            if (!isFishing) {
+                messageP.textContent = "Click CAST to fish!";
+            }
+        }, 2000);
+    } else if (isReeling) {
+        messageP.textContent = "Can't surface while reeling a fish!";
+    }
+}
