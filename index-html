@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fishing Game - Cast & Reel</title>
+    <title>Fishing Game - Dive & Catch</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,6 +14,13 @@
             <p>Score: <span id="score">0</span></p>
             <p>Fish Caught: <span id="fishCount">0</span></p>
         </div>
+        
+        <div class="oxygen-container">
+            <p>Oxygen: <span id="oxygen">100</span>%</p>
+            <div class="oxygen-bar-container">
+                <div id="oxygenBar"></div>
+            </div>
+        </div>
 
         <div class="game-area">
             <canvas id="gameCanvas" width="800" height="400"></canvas>
@@ -21,6 +28,7 @@
             <div class="controls">
                 <button id="castBtn">CAST LINE</button>
                 <button id="reelBtn" disabled>REEL IN</button>
+                <button id="surfaceBtn">SURFACE FOR AIR</button>
             </div>
             
             <div class="reel-bar-container">
@@ -41,9 +49,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-<div class="oxygen-container">
-    <p>Oxygen: <span id="oxygen">100</span>%</p>
-    <div class="oxygen-bar-container">
-        <div id="oxygenBar"></div>
-    </div>
-</div>
