@@ -150,3 +150,24 @@ button:disabled {
     border-bottom: 1px solid #ddd;
     font-size: 0.9rem;
 }
+.oxygen-container {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.oxygen-bar-container {
+    width: 200px;
+    height: 15px;
+    background: #ccc;
+    border-radius: 10px;
+    margin: 5px auto;
+    overflow: hidden;
+    border: 1px solid #555;
+}
+
+#oxygenBar {
+    width: 100%;
+    height: 100%;
+    background: #3498db;
+    transition: width 0.1s linear;
+}
