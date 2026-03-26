@@ -1,152 +1,242 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+// Game State
+let score = 0;
+let fishCount = 0;
+let isFishing = false;
+let isReeling = false;
+let reelProgress = 0;
+let currentFish = null;
+let reelInterval = null;
+let biteTimeout = null;
+
+// Fish species
+const fishSpecies = [
+    { name: "Minnow", weight: 1, value: 10, difficulty: 0.6, color: "#a5d6a5" },
+    { name: "Perch", weight: 2, value: 20, difficulty: 0.8, color: "#ffb74d" },
+    { name: "Bass", weight: 5, value: 50, difficulty: 1.0, color: "#81c784" },
+    { name: "Trout", weight: 8, value: 80, difficulty: 1.3, color: "#ff8a65" },
+    { name: "Catfish", weight: 12, value: 120, difficulty: 1.6, color: "#a1887f" },
+    { name: "Muskie", weight: 20, value: 200, difficulty: 2.0, color: "#ba68c8" },
+    { name: "Legendary Koi", weight: 50, value: 500, difficulty: 2.5, color: "#ffd966" }
+];
+
+// DOM Elements
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const castBtn = document.getElementById('castBtn');
+const reelBtn = document.getElementById('reelBtn');
+const scoreSpan = document.getElementById('score');
+const fishCountSpan = document.getElementById('fishCount');
+const messageP = document.getElementById('message');
+const reelBar = document.getElementById('reelBar');
+const catchLog = document.getElementById('catchLog');
+
+// Bobber position
+let bobberX = canvas.width / 2;
+let bobberY = 50;
+let bobberSplash = false;
+
+// Animation frame for bobber
+let animationId = null;
+
+// Draw everything
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw water
+    ctx.fillStyle = "#3a7ca5";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw water surface waves
+    ctx.beginPath();
+    ctx.moveTo(0, 80);
+    for (let x = 0; x < canvas.width; x += 20) {
+        ctx.lineTo(x, 80 + Math.sin(x * 0.02 + Date.now() * 0.005) * 3);
+    }
+    ctx.lineTo(canvas.width, 100);
+    ctx.lineTo(canvas.width, 0);
+    ctx.lineTo(0, 0);
+    ctx.fillStyle = "#6ab0de";
+    ctx.fill();
+    
+    // Draw fish shadows if not fishing
+    if (!isFishing) {
+        ctx.fillStyle = "rgba(0,0,0,0.2)";
+        for (let i = 0; i < 3; i++) {
+            ctx.beginPath();
+            ctx.ellipse(150 + i * 200, 200 + Math.sin(Date.now() * 0.002 + i) * 10, 20, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    
+    // Draw bobber
+    ctx.beginPath();
+    ctx.arc(bobberX, bobberY, 8, 0, Math.PI * 2);
+    ctx.fillStyle = "#e63946";
+    ctx.fill();
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(bobberX - 2, bobberY - 2, 2, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Draw fishing line
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, 20);
+    ctx.lineTo(bobberX, bobberY);
+    ctx.strokeStyle = "#555";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Splash effect
+    if (bobberSplash) {
+        ctx.beginPath();
+        ctx.arc(bobberX, bobberY, 15, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        ctx.fill();
+    }
 }
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #0b3b5f, #1b4f72);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+// Update bobber animation
+function animateBobber() {
+    if (isFishing && !isReeling) {
+        // Bobber bobbing
+        bobberY = 50 + Math.sin(Date.now() * 0.008) * 3;
+        
+        // Random bite chance when fishing
+        if (currentFish === null && Math.random() < 0.005) {
+            bite();
+        }
+    } else if (!isFishing) {
+        bobberY = 50 + Math.sin(Date.now() * 0.005) * 2;
+    }
+    
+    draw();
+    animationId = requestAnimationFrame(animateBobber);
 }
 
-.container {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    max-width: 1000px;
-    width: 100%;
+// Fish bites
+function bite() {
+    let fish = fishSpecies[Math.floor(Math.random() * fishSpecies.length)];
+    currentFish = fish;
+    
+    messageP.textContent = `BITE! A ${fish.name} is on the line! Click REEL IN!`;
+    messageP.style.color = "#e67e22";
+    messageP.style.fontSize = "1.1rem";
+    
+    reelBtn.disabled = false;
+    castBtn.disabled = true;
+    
+    bobberSplash = true;
+    setTimeout(() => { bobberSplash = false; }, 300);
 }
 
-h1 {
-    text-align: center;
-    color: #1e6f5c;
-    margin-bottom: 20px;
+// Reel in fish
+function startReeling() {
+    if (!currentFish) return;
+    
+    isReeling = true;
+    reelProgress = 0;
+    reelBar.style.width = "0%";
+    
+    const reelSpeed = 1 / currentFish.difficulty;
+    let tension = 0;
+    
+    reelInterval = setInterval(() => {
+        if (!isReeling) return;
+        
+        tension += Math.random() * 8;
+        reelProgress += reelSpeed * (1 + Math.random() * 0.5);
+        
+        if (tension > 100) {
+            fishEscapes();
+            return;
+        }
+        
+        let percent = Math.min(100, (reelProgress / 100) * 100);
+        reelBar.style.width = percent + "%";
+        
+        if (reelProgress >= 100) {
+            fishCaught();
+        }
+    }, 50);
 }
 
-.score-board {
-    display: flex;
-    justify-content: space-around;
-    background: #289672;
-    color: white;
-    padding: 10px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    font-size: 1.2rem;
-    font-weight: bold;
+function fishCaught() {
+    clearInterval(reelInterval);
+    
+    score += currentFish.value;
+    fishCount++;
+    scoreSpan.textContent = score;
+    fishCountSpan.textContent = fishCount;
+    
+    const logItem = document.createElement('li');
+    const time = new Date().toLocaleTimeString();
+    logItem.textContent = `${time} - Caught ${currentFish.name} (${currentFish.weight} lbs) +${currentFish.value} pts!`;
+    catchLog.prepend(logItem);
+    
+    messageP.textContent = `CAUGHT! ${currentFish.name} (${currentFish.weight} lbs) +${currentFish.value} points!`;
+    messageP.style.color = "#1e6f5c";
+    
+    resetFishing();
 }
 
-.game-area {
-    text-align: center;
+function fishEscapes() {
+    clearInterval(reelInterval);
+    
+    messageP.textContent = `The ${currentFish.name} got away! Try again!`;
+    messageP.style.color = "#c0392b";
+    
+    const logItem = document.createElement('li');
+    const time = new Date().toLocaleTimeString();
+    logItem.textContent = `${time} - ${currentFish.name} ESCAPED!`;
+    logItem.style.color = "#c0392b";
+    catchLog.prepend(logItem);
+    
+    resetFishing();
 }
 
-canvas {
-    background: linear-gradient(180deg, #6ab0de 0%, #3a7ca5 30%, #2c5a7a 60%, #1e3a4d 100%);
-    border-radius: 15px;
-    border: 3px solid #d4a373;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
+function resetFishing() {
+    isFishing = false;
+    isReeling = false;
+    currentFish = null;
+    reelProgress = 0;
+    reelBar.style.width = "0%";
+    reelBtn.disabled = true;
+    castBtn.disabled = false;
+    
+    if (reelInterval) clearInterval(reelInterval);
+    if (biteTimeout) clearTimeout(biteTimeout);
 }
 
-.controls {
-    margin: 15px 0;
-    display: flex;
-    gap: 20px;
-    justify-content: center;
+// Cast line
+function castLine() {
+    if (isFishing) return;
+    
+    isFishing = true;
+    currentFish = null;
+    messageP.textContent = "Line cast! Waiting for a bite...";
+    messageP.style.color = "#2e86c1";
+    reelBtn.disabled = true;
+    castBtn.disabled = true;
+    
+    bobberSplash = true;
+    setTimeout(() => { bobberSplash = false; }, 500);
+    
+    biteTimeout = setTimeout(() => {
+        if (isFishing && !currentFish) {
+            messageP.textContent = "No bites... Cast again!";
+            messageP.style.color = "#888";
+            resetFishing();
+        }
+    }, 15000);
 }
 
-button {
-    padding: 12px 30px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: transform 0.2s, background 0.2s;
-}
+// Event listeners
+castBtn.addEventListener('click', castLine);
+reelBtn.addEventListener('click', () => {
+    if (currentFish && !isReeling) {
+        startReeling();
+    }
+});
 
-button:hover:not(:disabled) {
-    transform: scale(1.05);
-}
-
-#castBtn {
-    background: #2e86c1;
-    color: white;
-    box-shadow: 0 4px 0 #1a5276;
-}
-
-#castBtn:hover:not(:disabled) {
-    background: #1f618d;
-}
-
-#reelBtn {
-    background: #e67e22;
-    color: white;
-    box-shadow: 0 4px 0 #b45f1b;
-}
-
-#reelBtn:hover:not(:disabled) {
-    background: #d35400;
-}
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.reel-bar-container {
-    width: 80%;
-    height: 20px;
-    background: #ddd;
-    border-radius: 10px;
-    margin: 15px auto;
-    overflow: hidden;
-    border: 1px solid #888;
-}
-
-#reelBar {
-    width: 0%;
-    height: 100%;
-    background: linear-gradient(90deg, #f1c40f, #e67e22);
-    transition: width 0.05s linear;
-    border-radius: 10px;
-}
-
-.message-area {
-    margin: 15px 0;
-    padding: 10px;
-    background: #f4f4f4;
-    border-radius: 10px;
-    font-weight: bold;
-    color: #1e6f5c;
-}
-
-.fish-log {
-    margin-top: 20px;
-    padding: 10px;
-    background: #fff3e0;
-    border-radius: 10px;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.fish-log h3 {
-    color: #d4a373;
-    margin-bottom: 10px;
-}
-
-#catchLog {
-    list-style: none;
-    padding-left: 0;
-}
-
-#catchLog li {
-    padding: 5px;
-    border-bottom: 1px solid #ddd;
-    font-size: 0.9rem;
-}
+// Start animation
+animateBobber();
